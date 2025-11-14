@@ -1,10 +1,13 @@
-package application;
+﻿package application;
 
 import java.util.List;
+import java.util.InputMismatchException;
 import java.util.Scanner;
+
 import model.dao.DaoFactory;
 import model.dao.UserDao;
 import model.entities.User;
+import db.DbException;
 
 public class Program {
 
@@ -12,106 +15,113 @@ public class Program {
 
         Scanner sc = new Scanner(System.in);
         UserDao userDao = DaoFactory.createUserDao();
-        int opcao;
-        System.out.println(" ┌------------------------------------------");
-        System.out.println(" | WELCOME TO MY SYSTEM CRUD                |");
-        System.out.println(" ∟------------------------------------------┘");
-        System.out.println();
-        System.out.println("NOME ALUNO: RONALD FRAGA DA SILVA ");
+
+        System.out.println("--------------------------------------");
+        System.out.println("| WELCOME TO THE REGISTRATION SCREEN |");
+        System.out.println("--------------------------------------");
+        System.out.println("");
+        System.out.println("NOME ALUNO: RONALD FRAGA DA SILVA");
         System.out.println("TURMA: 4DC1");
-        System.out.println();
+        System.out.println("MATRICULA: 24210092");
+        System.out.println("Feito por: RONALD FRAGA");      
 
-   
-     do {
-            System.out.println("\n==============================");
-            System.out.println("         MENU USUÁRIOS        ");
-            System.out.println("==============================");
-            System.out.println("1 - Inserir novo usuário");
-            System.out.println("2 - Buscar usuário por ID");
-            System.out.println("3 - Atualizar usuário");
-            System.out.println("4 - Listar todos os usuários");
-            System.out.println("5 - Deletar usuário");
-            System.out.println("0 - Sair");
-            System.out.print("Escolha uma opção: ");
-            opcao = sc.nextInt();
-            sc.nextLine(); // limpa o buffer
+        int option = -1;
 
-            switch (opcao) {
-                case 1:
-                    System.out.println("\n=== INSERIR NOVO USUÁRIO ===");
-                    System.out.print("Nome: ");
-                    String nome = sc.nextLine();
-                    System.out.print("Email: ");
-                    String email = sc.nextLine();
+        do {
+            try {
+                System.out.println("\n=== MENU CRUD ===");
+                System.out.println("1 - Inserir usuário");
+                System.out.println("2 - Listar usuários");
+                System.out.println("3 - Buscar por ID");
+                System.out.println("4 - Atualizar usuário");
+                System.out.println("5 - Deletar usuário");
+                System.out.println("0 - Sair");
+                System.out.print("Escolha: ");
+                option = sc.nextInt();
+                sc.nextLine(); // limpar buffer
 
-                    User novo = new User(null, nome, email);
-                    userDao.insert(novo);
-                    System.out.println("Usuário inserido! ID: " + novo.getId());
-                    break;
+                switch (option) {
+                    case 1:
+                        System.out.println("\n--- INSERIR USUÁRIO ---");
+                        System.out.print("Nome: ");
+                        String name = sc.nextLine();
+                        System.out.print("Email: ");
+                        String email = sc.nextLine();
 
-                case 2:
-                    System.out.println("\n=== BUSCAR USUÁRIO POR ID ===");
-                    System.out.print("Digite o ID: ");
-                    int idBusca = sc.nextInt();
-                    sc.nextLine();
-                    User u = userDao.findById(idBusca);
-                    if (u != null) {
-                        System.out.println("Usuário encontrado: " + u);
-                    } else {
-                        System.out.println("Nenhum usuário encontrado com esse ID.");
-                    }
-                    break;
-
-                case 3:
-                    System.out.println("\n=== ATUALIZAR USUÁRIO ===");
-                    System.out.print("Digite o ID do usuário: ");
-                    int idAtualiza = sc.nextInt();
-                    sc.nextLine();
-                    User usuarioExistente = userDao.findById(idAtualiza);
-                    if (usuarioExistente == null) {
-                        System.out.println("Usuário não encontrado!");
+                        User newUser = new User(null, name, email);
+                        userDao.insert(newUser);
+                        System.out.println("Usuário inserido! ID gerado = " + newUser.getId());
                         break;
-                    }
-                    System.out.print("Novo nome (" + usuarioExistente.getName() + "): ");
-                    String novoNome = sc.nextLine();
-                    System.out.print("Novo email (" + usuarioExistente.getEmail() + "): ");
-                    String novoEmail = sc.nextLine();
 
-                    if (!novoNome.isEmpty()) usuarioExistente.setName(novoNome);
-                    if (!novoEmail.isEmpty()) usuarioExistente.setEmail(novoEmail);
+                    case 2:
+                        System.out.println("\n--- LISTAR USUÁRIOS ---");
+                        List<User> list = userDao.findAll();
+                        if (list.isEmpty()) {
+                            System.out.println("Nenhum usuário encontrado.");
+                        } else {
+                            for (User u : list) {
+                                System.out.println(u);
+                            }
+                        }
+                        break;
 
-                    userDao.update(usuarioExistente);
-                    System.out.println("Usuário atualizado com sucesso!");
-                    break;
+                    case 3:
+                        System.out.println("\n--- BUSCAR POR ID ---");
+                        System.out.print("ID: ");
+                        int idFind = sc.nextInt();
+                        User found = userDao.findById(idFind);
+                        if (found == null) {
+                            System.out.println("Usuário não encontrado!");
+                        } else {
+                            System.out.println(found);
+                        }
+                        break;
 
-                case 4:
-                    System.out.println("\n=== LISTAR TODOS OS USUÁRIOS ===");
-                    List<User> lista = userDao.findAll();
-                    if (lista.isEmpty()) {
-                        System.out.println("Nenhum usuário encontrado.");
-                    } else {
-                        for (User obj : lista) System.out.println(obj);
-                    }
-                    break;
+                    case 4:
+                        System.out.println("\n--- ATUALIZAR USUÁRIO ---");
+                        System.out.print("ID do usuário: ");
+                        int idUpdate = sc.nextInt();
+                        sc.nextLine(); // limpar buffer
+                        User toUpdate = userDao.findById(idUpdate);
+                        if (toUpdate == null) {
+                            System.out.println("Usuário não encontrado!");
+                        } else {
+                            System.out.print("Novo nome: ");
+                            toUpdate.setName(sc.nextLine());
+                            System.out.print("Novo email: ");
+                            toUpdate.setEmail(sc.nextLine());
+                            userDao.update(toUpdate);
+                            System.out.println("Usuário atualizado com sucesso!");
+                        }
+                        break;
 
-                case 5:
-                    System.out.println("\n=== DELETAR USUÁRIO ===");
-                    System.out.print("Digite o ID: ");
-                    int idDel = sc.nextInt();
-                    sc.nextLine();
-                    userDao.deleteById(idDel);
-                    System.out.println("Usuário deletado (se existia).");
-                    break;
+                    case 5:
+                        System.out.println("\n--- DELETAR USUÁRIO ---");
+                        System.out.print("ID: ");
+                        int idDel = sc.nextInt();
+                        sc.nextLine();
+                        userDao.deleteById(idDel);
+                        System.out.println("Usuário deletado com sucesso!");
+                        break;
 
-                case 0:
-                    System.out.println("Encerrando o programa...");
-                    break;
+                    case 0:
+                        System.out.println("Saindo...");
+                        break;
 
-                default:
-                    System.out.println("Opção inválida! Tente novamente.");
+                    default:
+                        System.out.println("Opção inválida!");
+                }
+
+            } catch (InputMismatchException e) {
+                System.out.println("⚠️ Entrada inválida! Digite um número válido.");
+                sc.nextLine(); // limpa o que o usuário digitou errado
+            } catch (DbException e) {
+                System.out.println("❌ Erro de banco de dados: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("❌ Erro inesperado: " + e.getMessage());
             }
 
-        } while (opcao != 0);
+        } while (option != 0);
 
         sc.close();
     }

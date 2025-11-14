@@ -3,7 +3,6 @@ package model.dao.impl;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import db.DB;
 import db.DbException;
 import model.dao.UserDao;
 import model.entities.User;
